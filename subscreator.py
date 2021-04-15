@@ -118,35 +118,82 @@ def substitute(conf, inp_text, out_path):
         )
         start_idx += end_idx
 
-    det_name = out_path + "/" + os.path.basename(conf).strip(".json") + ".substitutions"
-    create_substitutions_file(out_text, det_name)
+    dest_name = out_path + os.path.basename(conf).strip(".json") + ".substitutions"
+    create_substitutions_file(out_text, dest_name)
+    return os.path.basename(conf).strip(".json") + ".substitutions"
+
+
+def add_subs_to_makefile(makefile, subs_list):
+    """
+    Add to makefile new substitutions files
+    """
+
+    with open(makefile, "r") as f:
+        lines = f.readlines()
+    i = 0
+    for l, line in enumerate(lines):
+        if "DB +=" in line:
+            i = l
+    for sub in subs_list:
+        new_line = "DB += %s\n" % sub
+        if not new_line in lines:
+            lines.insert(i + 1, new_line)
+            i += 1
+    with open(makefile, "w") as f:
+        f.writelines(lines)
+    print("Makefile updated")
 
 
 if __name__ == "__main__":
     args = vars(parser())
 
-    conf = args["config"]
+    for f in os.listdir():
+        if "App" in f:
+            app_path = f + "/"
 
-    template = args["template"]
-    if os.path.isfile(template):
-        inp_text = load_template_from_file(template)
+    # Configuration folder and files definition
+    if args["config"] is None:
+        conf_path = app_path + "config/"
     else:
-        print("Template file '%s' does not exist" % template)
+        conf_path = args["config"]
+        conf_path += "" if conf_path[-1] == "/" else "/"
+    conf_files = []
+    if os.path.isdir(conf_path):
+        for f in os.listdir(conf_path):
+            if ".json" in f:
+                conf_files.append(conf_path + f)
+    else:
+        print(
+            """'%s' folder does not exist. Create it 
+            and add there your configuration files 
+            (.json files) and the template.substitutions."""
+            % conf_path
+        )
         exit()
 
-    if args["out"] == None:
-        out_path = os.path.dirname(template)
-        if out_path == "":
-            out_path = "."
+    # Template file definition
+    template = args["template"]
+    if os.path.isfile(conf_path + template):
+        inp_text = load_template_from_file(conf_path + template)
+    else:
+        print("Template file '%s' does not exist" % conf_path + template)
+        exit()
+
+    # Output path existence check
+    if args["out"] is None:
+        out_path = app_path + "Db/"
     else:
         out_path = args["out"]
-
-    if os.path.isdir(conf):
-        for f in os.listdir(conf):
-            if ".json" in f:
-                substitute(conf + "/" + f, inp_text, out_path)
-    elif os.path.isfile(conf):
-        substitute(conf, inp_text, out_path)
-    else:
-        print("Configuration file/path '%s' does not exist" % conf)
+        out_path += "" if out_path[-1] == "/" else "/"
+    if not os.path.isdir(out_path):
+        print("Output folder '%s' does not exist." % out_path)
         exit()
+
+    # Create substitutions
+    subs_list = []
+    for conf in conf_files:
+        subs_list.append(substitute(conf, inp_text, out_path))
+
+    # Update Makefile
+    makefile = out_path + "Makefile"
+    add_subs_to_makefile(makefile, subs_list)

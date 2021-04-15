@@ -15,17 +15,20 @@ def parser():
     )
 
     main_parser.add_argument(
-        "config",
+        "-c",
+        "--config",
         type=str,
-        help="""Path to a specific configuration file or path to 
-            a folder containing one or multiple configuration files.
-            It must be a .json file. 
+        help="""Path to a specific configuration folder containing
+            one or multiple configuration files and the template one.
+            COnfiguration files must be a .json file.
             When receiving a folder it will read only .json files""",
     )
     main_parser.add_argument(
-        "template",
+        "-t",
+        "--template",
         type=str,
-        help="""Path to a specific template file to use as reference 
+        default="template.substitutions",
+        help="""Name of a specific template file to use as reference 
             when generating the new substitutions files.""",
     )
     main_parser.add_argument(
