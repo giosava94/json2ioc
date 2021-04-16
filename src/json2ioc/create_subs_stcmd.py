@@ -174,12 +174,32 @@ def create_start_command(st_cmd, subs_list, st_cmd_folder):
         print("Create '%s'" % name)
 
 
+def check_app_dir(workspace):
+    """
+    Check if workspace dir contains a *App folder.
+    Return the complete path to the *App folder.
+    Return None if the folder does not exist
+    """
+
+    workspace += "" if workspace[-1] == "/" else "/"
+    app_path = None
+    for f in os.listdir():
+        if f.endswith("App"):
+            app_path = workspace + f + "/"
+    if app_path is None:
+        print(
+            "Current workspace '%s' does not contain a folder ending with 'App'"
+            % workspace
+        )
+    return app_path
+
+
 def main():
     args = vars(parser())
 
-    for f in os.listdir():
-        if "App" in f:
-            app_path = f + "/"
+    app_path = check_app_dir(args.get("workspace", None))
+    if app_path == None:
+        exit()
 
     # Configuration folder and files definition
     if args.get("config", None) is None:
@@ -194,9 +214,7 @@ def main():
                 conf_files.append(conf_path + f)
     else:
         print(
-            """'%s' folder does not exist. Create it 
-            and add there your configuration files 
-            (.json files) and the template.substitutions."""
+            "'%s' folder does not exist. Create it and add there your configuration files (.json files) and the template.substitutions."
             % conf_path
         )
         exit()
