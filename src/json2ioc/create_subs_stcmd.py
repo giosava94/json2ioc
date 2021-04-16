@@ -194,7 +194,7 @@ def check_app_dir(workspace):
     return app_path
 
 
-def check_subs_out(subs_out, workspace, app_path):
+def check_subs_out_dir(subs_out, app_path):
     """
     Check the output path for the substitutions file exists.
     Return the complete path to the target folder.
@@ -204,7 +204,7 @@ def check_subs_out(subs_out, workspace, app_path):
     if subs_out is None:
         out_path = app_path + "Db/"
     else:
-        out_path = workspace + subs_out
+        out_path = subs_out
         out_path += "" if out_path[-1] == "/" else "/"
     if os.path.isdir(out_path):
         return out_path
@@ -213,18 +213,43 @@ def check_subs_out(subs_out, workspace, app_path):
         return None
 
 
+def check_start_command_dir(st_cmd, workspace):
+    """
+    Check the folder containing the st_cmd file exists.
+    Return the path to the directory or None if it does not exist.
+    """
+
+    if st_cmd is None:
+        for f in os.listdir("iocBoot"):
+            if f.startswith("ioc"):
+                st_cmd = workspace + "iocBoot/" + f + "/st.cmd"
+    if os.path.isfile(st_cmd):
+        st_cmd_folder = os.path.dirname(st_cmd)
+        if st_cmd_folder == "":
+            st_cmd_folder = "."
+        st_cmd_folder += "/"
+    else:
+        st_cmd_folder = None
+        print("'%s' does not exist." % st_cmd)
+    return st_cmd_folder
+
+
 def main():
     args = vars(parser())
     workspace = args.get("workspace", None)
     subs_out = args.get("subs_out", None)
+    st_cmd = args.get("st_cmd", None)
 
     app_path = check_app_dir(workspace)
     if app_path is None:
         exit()
 
-    out_path = check_subs_out(subs_out, workspace, app_path)
+    out_path = check_subs_out_dir(subs_out, app_path)
     if out_path is None:
         exit()
+
+    st_cmd_folder = check_start_command_dir(st_cmd, workspace)
+    exit()
 
     # Configuration folder and files definition
     if args.get("config", None) is None:
@@ -250,21 +275,6 @@ def main():
         subs_text = load_template_from_file(conf_path + template)
     else:
         print("Template file '%s' does not exist" % conf_path + template)
-        exit()    
-
-    # Start command existence check
-    st_cmd = args.get("st_cmd", None)
-    if st_cmd is None:
-        for f in os.listdir("iocBoot"):
-            if f.startswith("ioc"):
-                st_cmd = "iocBoot/" + f + "/st.cmd"
-    if os.path.isfile(st_cmd):
-        st_cmd_folder = os.path.dirname(st_cmd)
-        if st_cmd_folder == "":
-            st_cmd_folder = "."
-        st_cmd_folder += "/"
-    else:
-        print("'%s' does not exist." % st_cmd)
         exit()
 
     # Create substitutions
