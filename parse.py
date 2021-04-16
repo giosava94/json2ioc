@@ -48,6 +48,12 @@ def parser():
             By default the app search for the iocBoot/ioc*/st.cmd file.""",
     )
 
+    main_parser.add_argument(
+        "-y",
+        "--make",
+        action="store_true",
+        help="Flag to compile project after file creation",
+    )
     # Start argcomplete
     argcomplete.autocomplete(main_parser)
 

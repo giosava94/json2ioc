@@ -250,3 +250,10 @@ if __name__ == "__main__":
     create_start_command(st_cmd, subs_list, st_cmd_folder)
 
     print("\nProcedure complete.")
+
+    if args["make"] == False:
+        make = input("Do you want to compile? [y/N] ")
+    if args["make"] or make:
+        print("Compiling\n")
+        os.system("make -j $(nproc)")
+        print("\nProject compiled")
