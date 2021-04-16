@@ -1,5 +1,7 @@
+#!/usr/bin/env python3
+
 import json, os, re
-from parse import parser
+from .parser import parser
 
 
 def load_config_from_file(name):
@@ -172,7 +174,7 @@ def create_start_command(st_cmd, subs_list, st_cmd_folder):
         print("Create '%s'" % name)
 
 
-if __name__ == "__main__":
+def main():
     args = vars(parser())
 
     for f in os.listdir():
@@ -238,22 +240,26 @@ if __name__ == "__main__":
         name = create_substitutions(conf, subs_text, out_path)
         subs_list.append(os.path.basename(name))
 
-    print("\n")
+    print("")
 
     # Update Makefile
     makefile = out_path + "Makefile"
     add_subs_to_makefile(makefile, subs_list)
 
-    print("\n")
+    print("")
 
     # Create start command
     create_start_command(st_cmd, subs_list, st_cmd_folder)
 
     print("\nProcedure complete.")
 
-    if args["make"] == False:
+    if not args["make"]:
         make = input("Do you want to compile? [y/N] ")
-    if args["make"] or make:
+    if args["make"] or make.lower() == "y":
         print("Compiling\n")
         os.system("make -j $(nproc)")
         print("\nProject compiled")
+
+
+if __name__ == "__main__":
+    main()
