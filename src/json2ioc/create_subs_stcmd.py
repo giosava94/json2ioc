@@ -2,6 +2,14 @@
 
 import json, os, re
 from .parser import parser
+from .paths import (
+    get_config,
+    get_conf_files,
+    get_st_cmd_template,
+    get_subs_out_dir,
+    get_subs_template,
+    get_work_dir,
+)
 
 
 def load_config_from_file(name):
@@ -15,7 +23,7 @@ def load_config_from_file(name):
     return config
 
 
-def load_template_from_file(name):
+def load_subs_template(name):
     """
     Loading template file.
     """
@@ -174,126 +182,6 @@ def create_start_command(st_cmd, subs_list, st_cmd_folder):
         print("Create '%s'" % name)
 
 
-def get_db_dir(workspace, db="Db/"):
-    """
-    Check if workspace dir contains a *App folder
-    with the given Db directory and return it.
-    Return error if the App dir does not exist.
-    Raise error if *App or the given db folder do not exist.
-    """
-
-    for f in os.listdir(workspace):
-        if f.endswith("App"):
-            app_dir = workspace + f + "/"
-            db_dir = app_dir + db
-            db_dir += "" if db_dir[-1] == "/" else "/"
-            if os.path.isdir(db_dir):
-                return db_dir
-            raise FileNotFoundError(
-                "Directory '%s' inside '%s' not found" % (db, app_dir)
-            )
-    raise FileNotFoundError(
-        "Directory ending with 'App' in selected workspace '%s' not found" % workspace
-    )
-
-
-def get_work_dir(workspace):
-    """
-    Correctly format received workspace dir.
-    Raise error if the workspace does not exist.
-    """
-
-    workspace += "" if workspace[-1] == "/" else "/"
-    if os.path.isdir(workspace):
-        return workspace
-    raise FileNotFoundError("Received workspace '%s' not found" % workspace)
-
-
-def get_config(conf_path, workspace):
-    """
-    Set the correct path to the configuration folder
-    or file based on the chosen workspace.
-    Return the path to the json configuration file or dir.
-    Raise error if the the given path is not valid.
-    """
-
-    if conf_path is None:
-        conf_path = workspace + "json_config/"
-    if os.path.exists(conf_path):
-        return conf_path
-    raise FileNotFoundError(
-        "Configuration file or directory '%s' not found" % conf_path
-    )
-
-
-def get_subs_template(subs_template, workspace):
-    """
-    Return the default substitutions template if no one is given.
-    In any case raise error if the template does not exists.
-    """
-
-    if subs_template is None:
-        db_dir = get_db_dir(workspace)
-        subs_template = db_dir + "template.substitutions"
-    if os.path.isfile(subs_template):
-        return subs_template
-    raise FileNotFoundError("Substitutions file '%s' not found" % subs_template)
-
-
-def st_cmd_dir(workspace):
-    """
-    Check if workspace dir contains an iocBoot folder
-    with and ioc* folder inside and return it.
-    Raise an error if one of the parent folder do not exist.
-    """
-
-    for f in os.listdir(workspace):
-        if f == "iocBoot":
-            ioc_boot_dir = workspace + f + "/"
-            for d in os.listdir(ioc_boot_dir):
-                if d.startswith("ioc"):
-                    st_cmd_dir = ioc_boot_dir + d + "/"
-                    return st_cmd_dir
-            raise FileNotFoundError(
-                "Folder starting with 'ioc' inside '%s' not found" % (ioc_boot_dir)
-            )
-    raise FileNotFoundError(
-        "Directory 'iocBoot' in selected workspace '%s' not found" % workspace
-    )
-
-
-def get_st_cmd_template(st_cmd_template, workspace):
-    """
-    Return the start command created when generating the IOC
-    with makeBaseApp.pl if no start command is specified.
-    In any case raise error if the start command does not exist.
-    """
-
-    if st_cmd_template is None:
-        db_dir = st_cmd_dir(workspace)
-        st_cmd_template = db_dir + "st.cmd"
-    if os.path.isfile(st_cmd_template):
-        return st_cmd_template
-    raise FileNotFoundError("Substitutions file '%s' not found" % st_cmd_template)
-
-
-def get_subs_out_dir(subs_out, workspace):
-    """
-    Return the correct output folder for the substitutions files.
-    By default it is the *App/Db one if it exists.
-    Raise error if the specified folder does not exist.
-    """
-
-    if subs_out is None:
-        return get_db_dir(workspace)
-    elif os.path.isdir(subs_out):
-        subs_out += "" if subs_out[-1] == "/" else "/"
-        return subs_out
-    raise FileNotFoundError(
-        "Output directory for substitutions '%s' not found" % subs_out
-    )
-
-
 def main():
     args = vars(parser())
 
@@ -306,26 +194,12 @@ def main():
     subs_out = get_subs_out_dir(args.get("subs_out"), workspace)
     run_make = args.get("make", False)
 
-    # Configuration folder and files definition
-    conf_files = []
-    if os.path.isdir(conf_path):
-        for f in os.listdir(conf_path):
-            if ".json" in f:
-                conf_files.append(conf_path + f)
-    else:
-        print(
-            "'%s' folder does not exist. Create it and add there your configuration files (.json files) and the template.substitutions."
-            % conf_path
-        )
-        exit()
+    conf_files = get_conf_files(config)
+    if len(conf_files) == 0:
+        print("No configuration files")
+        return
 
-    # Template file definition
-    template = args.get("template", None)
-    if os.path.isfile(conf_path + template):
-        subs_text = load_template_from_file(conf_path + template)
-    else:
-        print("Template file '%s' does not exist" % conf_path + template)
-        exit()
+    subs_text = load_subs_template(subs_template)
 
     # Create substitutions
     subs_list = []
