@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import json, os
+import os
 from .parser import parser
 from .substitutions import generate_substitutions, add_subs_to_makefile
 from .start_command import get_st_cmd_relevant_indices, generate_start_command
@@ -22,8 +22,7 @@ from .read_write import (
     write_text_to_file,
 )
 
-
-if __name__ == "__main__":
+def main():
     args = vars(parser())
 
     # Get correct inputs and outputs from args.
@@ -78,3 +77,6 @@ if __name__ == "__main__":
         print("Create '%s'" % dest_name)
 
     print("\nProcedure complete.")
+
+if __name__ == "__main__":
+    main()

@@ -24,5 +24,5 @@ setup(
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     python_requires=">=3.6",
-    scripts=["scripts/json2ioc"]
+    entry_points={"console_scripts": ["json2ioc = json2ioc.__main__:main"]},
 )

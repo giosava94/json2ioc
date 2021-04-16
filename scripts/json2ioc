@@ -1,5 +1,0 @@
-#!/bin/usr/python3
-
-from json2ioc import create_subs_stcmd
-
-create_subs_stcmd()
