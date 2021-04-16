@@ -178,7 +178,7 @@ def check_app_dir(workspace):
     """
     Check if workspace dir contains a *App folder.
     Return the complete path to the *App folder.
-    Return None if the folder does not exist
+    Return None if the folder does not exist.
     """
 
     workspace += "" if workspace[-1] == "/" else "/"
@@ -194,11 +194,36 @@ def check_app_dir(workspace):
     return app_path
 
 
+def check_subs_out(subs_out, workspace, app_path):
+    """
+    Check the output path for the substitutions file exists.
+    Return the complete path to the target folder.
+    Return None if the folder does not exist.
+    """
+
+    if subs_out is None:
+        out_path = app_path + "Db/"
+    else:
+        out_path = workspace + subs_out
+        out_path += "" if out_path[-1] == "/" else "/"
+    if os.path.isdir(out_path):
+        return out_path
+    else:
+        print("Output folder '%s' does not exist." % out_path)
+        return None
+
+
 def main():
     args = vars(parser())
+    workspace = args.get("workspace", None)
+    subs_out = args.get("subs_out", None)
 
-    app_path = check_app_dir(args.get("workspace", None))
-    if app_path == None:
+    app_path = check_app_dir(workspace)
+    if app_path is None:
+        exit()
+
+    out_path = check_subs_out(subs_out, workspace, app_path)
+    if out_path is None:
         exit()
 
     # Configuration folder and files definition
@@ -225,17 +250,7 @@ def main():
         subs_text = load_template_from_file(conf_path + template)
     else:
         print("Template file '%s' does not exist" % conf_path + template)
-        exit()
-
-    # Output path existence check
-    if args.get("out", None) is None:
-        out_path = app_path + "Db/"
-    else:
-        out_path = args.get("out", None)
-        out_path += "" if out_path[-1] == "/" else "/"
-    if not os.path.isdir(out_path):
-        print("Output folder '%s' does not exist." % out_path)
-        exit()
+        exit()    
 
     # Start command existence check
     st_cmd = args.get("st_cmd", None)
