@@ -5,6 +5,7 @@ from .parser import parser
 from .paths import (
     get_config,
     get_conf_files,
+    get_makefile,
     get_st_cmd_template,
     get_subs_out_dir,
     get_subs_template,
@@ -12,26 +13,52 @@ from .paths import (
 )
 
 
-def load_config_from_file(name):
+def load_data_from_json(name):
     """
-    Load configuration file.
+    Load dictionary with json.
     """
 
-    print("Load configuration file: %s" % name)
     with open(name, "r") as f:
-        config = json.load(f)
-    return config
+        data = json.load(f)
+    return data
 
 
-def load_subs_template(name):
+def load_text_from_file(name):
     """
-    Loading template file.
+    Loading text.
     """
 
-    print("Load template file: %s" % name)
     with open(name, "r") as f:
         text = f.read()
     return text
+
+
+def load_lines_from_file(name):
+    """
+    Load lines.
+    """
+
+    with open(name, "r") as f:
+        lines = f.readlines()
+    return lines
+
+
+def write_text_to_file(name, text):
+    """
+    Write to file.
+    """
+
+    with open(name, "w") as f:
+        f.write(text)
+
+
+def write_lines_to_file(name, lines):
+    """
+    Write lines to file.
+    """
+
+    with open(name, "w") as f:
+        f.writelines(lines)
 
 
 def replace_text(inp_text, config, start=0, out_text=""):
@@ -97,17 +124,7 @@ def replace_macros(inp_lines, item):
     return new_lines
 
 
-def create_file(name, text):
-    """
-    Create file
-    """
-
-    print("Create '%s'" % name)
-    with open(name, "w") as f:
-        f.write(text)
-
-
-def create_substitutions(conf, inp_text, out_path):
+def generate_substitutions(inp_text, conf):
     """
     From configuration file and input text,
     search the `{pattern {` string and then
@@ -117,41 +134,36 @@ def create_substitutions(conf, inp_text, out_path):
     out_text = ""
     start_idx = 0
     target = re.compile(r"\{[\s]*pattern[\s]*\{[^\{]*", re.DOTALL)
-    config = load_config_from_file(conf)
+
+    if target is None:
+        raise Exception("Valid '{ pattern {' expression not found")
 
     while True:
         m = re.search(target, inp_text[start_idx:])
         if m is None:
             break
-        out_text, end_idx = replace_text(
-            inp_text[start_idx:], config, m.end(), out_text
-        )
+        out_text, end_idx = replace_text(inp_text[start_idx:], conf, m.end(), out_text)
         start_idx += end_idx
 
-    dest_name = out_path + os.path.basename(conf)[:-5] + ".substitutions"
-    create_file(dest_name, out_text)
-    return dest_name
+    return out_text
 
 
-def add_subs_to_makefile(makefile, subs_list):
+def add_subs_to_makefile(lines, subs_list):
     """
     Add to makefile new substitutions files
     """
 
-    with open(makefile, "r") as f:
-        lines = f.readlines()
+    new_lines = lines[:]
     i = 0
-    for l, line in enumerate(lines):
+    for l, line in enumerate(new_lines):
         if "DB +=" in line:
             i = l
     for sub in subs_list:
         new_line = "DB += %s\n" % sub
-        if not new_line in lines:
-            lines.insert(i + 1, new_line)
+        if not new_line in new_lines:
+            new_lines.insert(i + 1, new_line)
             i += 1
-    with open(makefile, "w") as f:
-        f.writelines(lines)
-    print("Makefile updated")
+    return new_lines
 
 
 def create_start_command(st_cmd, subs_list, st_cmd_folder):
@@ -188,30 +200,37 @@ def main():
     # Get correct inputs and outputs.
     # Check file and folder existence
     workspace = get_work_dir(args.get("workspace"))
-    config = get_config(args.get("config"), workspace)
+    config_path = get_config(args.get("config"), workspace)
     subs_template = get_subs_template(args.get("subs_template"), workspace)
     st_cmd = get_st_cmd_template(args.get("st_cmd_template"), workspace)
     subs_out = get_subs_out_dir(args.get("subs_out"), workspace)
     run_make = args.get("make", False)
 
-    conf_files = get_conf_files(config)
+    conf_files = get_conf_files(config_path)
     if len(conf_files) == 0:
         print("No configuration files")
         return
-
-    subs_text = load_subs_template(subs_template)
+    subs_text = load_text_from_file(subs_template)
 
     # Create substitutions
     subs_list = []
     for conf in conf_files:
-        name = create_substitutions(conf, subs_text, out_path)
-        subs_list.append(os.path.basename(name))
+        config = load_data_from_json(conf)
+        out_text = generate_substitutions(subs_text, config)
+        file_name = os.path.basename(conf)[:-5] + ".substitutions"
+        dest_name = subs_out + file_name
+        write_text_to_file(dest_name, out_text)
+        subs_list.append(file_name)
+        print("Created '%s'" % dest_name)
 
     print("")
 
     # Update Makefile
-    makefile = out_path + "Makefile"
-    add_subs_to_makefile(makefile, subs_list)
+    makefile = get_makefile(subs_out)
+    makefile_lines = load_lines_from_file(makefile)
+    lines = add_subs_to_makefile(makefile_lines, subs_list)
+    write_lines_to_file(makefile, lines)
+    print("Updated %s" % makefile)
 
     print("")
 

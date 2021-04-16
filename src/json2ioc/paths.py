@@ -56,6 +56,18 @@ def get_db_dir(workspace, db="Db/"):
     )
 
 
+def get_makefile(subs_out):
+    """
+    Load from the substitutions destination folder the makefile.
+    Raise error if the *App/Db/Makefile is not a file.
+    """
+
+    makefile = subs_out + "Makefile"
+    if os.path.isfile(makefile):
+        return makefile
+    raise FileNotFoundError("'%s' not found" % makefile)
+
+
 def get_st_cmd_dir(workspace):
     """
     Check if workspace dir contains an iocBoot folder
