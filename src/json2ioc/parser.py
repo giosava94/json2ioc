@@ -17,27 +17,26 @@ def parser():
         "-w",
         "--workspace",
         type=str,
-        default=".",
+        default="./",
         help="Specify workspace. By default it is the folder where the command is executed",
     )
     main_parser.add_argument(
         "-c",
         "--config",
         type=str,
-        help="Path to the configuration folder containing one or multiple configuration files and the template one. By default the app searches into the *App/config/ folder. Configuration files must be a .json file. When receiving a folder it will read only .json files",
+        help="Path to the configuration folder containing one or multiple configuration files or path to a specific configuration. By default the app searches into the json_config folder in the workspace. Configuration files must be .json files. When receiving a folder it will read all and only .json files",
     )
     main_parser.add_argument(
         "-t",
         "--subs-template",
         type=str,
-        default="template.substitutions",
         help="Name of a specific template file to use as reference when generating the new substitutions files.",
     )
     main_parser.add_argument(
         "-s",
         "--st-cmd-template",
         type=str,
-        help="Path to the specific st.cmd file to use as template with respect to the specified workspace dir. By default the app search for the iocBoot/ioc*/st.cmd file.",
+        help="Path to the specific start command file to use as template. By default the app search for the iocBoot/ioc*/st.cmd file.",
     )
 
     # OUTPUTS
@@ -45,13 +44,13 @@ def parser():
         "-o",
         "--subs-out",
         type=str,
-        help="Path to the folder where to create the substitutions files with respect to the specified workspace dir. By default the app writes the output files in the *App/Db/ folder.",
+        help="Path to the folder where to create the substitutions files. By default the app writes the output files in the *App/Db folder.",
     )
     main_parser.add_argument(
         "-m",
         "--make",
         action="store_true",
-        help="Flag to compile project after file creation",
+        help="Compile project after file creation",
     )
 
     # Start argcomplete

@@ -174,89 +174,139 @@ def create_start_command(st_cmd, subs_list, st_cmd_folder):
         print("Create '%s'" % name)
 
 
-def check_app_dir(workspace):
+def get_db_dir(workspace, db="Db/"):
     """
-    Check if workspace dir contains a *App folder.
-    Return the complete path to the *App folder.
-    Return None if the folder does not exist.
+    Check if workspace dir contains a *App folder
+    with the given Db directory and return it.
+    Return error if the App dir does not exist.
+    Raise error if *App or the given db folder do not exist.
+    """
+
+    for f in os.listdir(workspace):
+        if f.endswith("App"):
+            app_dir = workspace + f + "/"
+            db_dir = app_dir + db
+            db_dir += "" if db_dir[-1] == "/" else "/"
+            if os.path.isdir(db_dir):
+                return db_dir
+            raise FileNotFoundError(
+                "Directory '%s' inside '%s' not found" % (db, app_dir)
+            )
+    raise FileNotFoundError(
+        "Directory ending with 'App' in selected workspace '%s' not found" % workspace
+    )
+
+
+def get_work_dir(workspace):
+    """
+    Correctly format received workspace dir.
+    Raise error if the workspace does not exist.
     """
 
     workspace += "" if workspace[-1] == "/" else "/"
-    app_path = None
-    for f in os.listdir():
-        if f.endswith("App"):
-            app_path = workspace + f + "/"
-    if app_path is None:
-        print(
-            "Current workspace '%s' does not contain a folder ending with 'App'"
-            % workspace
-        )
-    return app_path
+    if os.path.isdir(workspace):
+        return workspace
+    raise FileNotFoundError("Received workspace '%s' not found" % workspace)
 
 
-def check_subs_out_dir(subs_out, app_path):
+def get_config(conf_path, workspace):
     """
-    Check the output path for the substitutions file exists.
-    Return the complete path to the target folder.
-    Return None if the folder does not exist.
+    Set the correct path to the configuration folder
+    or file based on the chosen workspace.
+    Return the path to the json configuration file or dir.
+    Raise error if the the given path is not valid.
+    """
+
+    if conf_path is None:
+        conf_path = workspace + "json_config/"
+    if os.path.exists(conf_path):
+        return conf_path
+    raise FileNotFoundError(
+        "Configuration file or directory '%s' not found" % conf_path
+    )
+
+
+def get_subs_template(subs_template, workspace):
+    """
+    Return the default substitutions template if no one is given.
+    In any case raise error if the template does not exists.
+    """
+
+    if subs_template is None:
+        db_dir = get_db_dir(workspace)
+        subs_template = db_dir + "template.substitutions"
+    if os.path.isfile(subs_template):
+        return subs_template
+    raise FileNotFoundError("Substitutions file '%s' not found" % subs_template)
+
+
+def st_cmd_dir(workspace):
+    """
+    Check if workspace dir contains an iocBoot folder
+    with and ioc* folder inside and return it.
+    Raise an error if one of the parent folder do not exist.
+    """
+
+    for f in os.listdir(workspace):
+        if f == "iocBoot":
+            ioc_boot_dir = workspace + f + "/"
+            for d in os.listdir(ioc_boot_dir):
+                if d.startswith("ioc"):
+                    st_cmd_dir = ioc_boot_dir + d + "/"
+                    return st_cmd_dir
+            raise FileNotFoundError(
+                "Folder starting with 'ioc' inside '%s' not found" % (ioc_boot_dir)
+            )
+    raise FileNotFoundError(
+        "Directory 'iocBoot' in selected workspace '%s' not found" % workspace
+    )
+
+
+def get_st_cmd_template(st_cmd_template, workspace):
+    """
+    Return the start command created when generating the IOC
+    with makeBaseApp.pl if no start command is specified.
+    In any case raise error if the start command does not exist.
+    """
+
+    if st_cmd_template is None:
+        db_dir = st_cmd_dir(workspace)
+        st_cmd_template = db_dir + "st.cmd"
+    if os.path.isfile(st_cmd_template):
+        return st_cmd_template
+    raise FileNotFoundError("Substitutions file '%s' not found" % st_cmd_template)
+
+
+def get_subs_out_dir(subs_out, workspace):
+    """
+    Return the correct output folder for the substitutions files.
+    By default it is the *App/Db one if it exists.
+    Raise error if the specified folder does not exist.
     """
 
     if subs_out is None:
-        out_path = app_path + "Db/"
-    else:
-        out_path = subs_out
-        out_path += "" if out_path[-1] == "/" else "/"
-    if os.path.isdir(out_path):
-        return out_path
-    else:
-        print("Output folder '%s' does not exist." % out_path)
-        return None
-
-
-def check_start_command_dir(st_cmd, workspace):
-    """
-    Check the folder containing the st_cmd file exists.
-    Return the path to the directory or None if it does not exist.
-    """
-
-    if st_cmd is None:
-        for f in os.listdir("iocBoot"):
-            if f.startswith("ioc"):
-                st_cmd = workspace + "iocBoot/" + f + "/st.cmd"
-    if os.path.isfile(st_cmd):
-        st_cmd_folder = os.path.dirname(st_cmd)
-        if st_cmd_folder == "":
-            st_cmd_folder = "."
-        st_cmd_folder += "/"
-    else:
-        st_cmd_folder = None
-        print("'%s' does not exist." % st_cmd)
-    return st_cmd_folder
+        return get_db_dir(workspace)
+    elif os.path.isdir(subs_out):
+        subs_out += "" if subs_out[-1] == "/" else "/"
+        return subs_out
+    raise FileNotFoundError(
+        "Output directory for substitutions '%s' not found" % subs_out
+    )
 
 
 def main():
     args = vars(parser())
-    workspace = args.get("workspace", None)
-    subs_out = args.get("subs_out", None)
-    st_cmd = args.get("st_cmd", None)
 
-    app_path = check_app_dir(workspace)
-    if app_path is None:
-        exit()
-
-    out_path = check_subs_out_dir(subs_out, app_path)
-    if out_path is None:
-        exit()
-
-    st_cmd_folder = check_start_command_dir(st_cmd, workspace)
-    exit()
+    # Get correct inputs and outputs.
+    # Check file and folder existence
+    workspace = get_work_dir(args.get("workspace"))
+    config = get_config(args.get("config"), workspace)
+    subs_template = get_subs_template(args.get("subs_template"), workspace)
+    st_cmd = get_st_cmd_template(args.get("st_cmd_template"), workspace)
+    subs_out = get_subs_out_dir(args.get("subs_out"), workspace)
+    run_make = args.get("make", False)
 
     # Configuration folder and files definition
-    if args.get("config", None) is None:
-        conf_path = app_path + "config/"
-    else:
-        conf_path = args.get("config", None)
-        conf_path += "" if conf_path[-1] == "/" else "/"
     conf_files = []
     if os.path.isdir(conf_path):
         for f in os.listdir(conf_path):
@@ -296,9 +346,9 @@ def main():
 
     print("\nProcedure complete.")
 
-    if not args["make"]:
+    if not run_make:
         make = input("Do you want to compile? [y/N] ")
-    if args["make"] or make.lower() == "y":
+    if run_make or make.lower() == "y":
         print("Compiling\n")
         os.system("make -j $(nproc)")
         print("\nProject compiled")
