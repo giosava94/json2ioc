@@ -87,17 +87,17 @@ def replace_macros(inp_lines, item):
     return new_lines
 
 
-def create_substitutions_file(text, name):
+def create_file(name, text):
     """
-    Create substitutions file
+    Create file
     """
 
-    print("Create substitutions: %s" % name)
+    print("Create '%s'" % name)
     with open(name, "w") as f:
         f.write(text)
 
 
-def substitute(conf, inp_text, out_path):
+def create_substitutions(conf, inp_text, out_path):
     """
     From configuration file and input text,
     search the `{pattern {` string and then
@@ -118,9 +118,9 @@ def substitute(conf, inp_text, out_path):
         )
         start_idx += end_idx
 
-    dest_name = out_path + os.path.basename(conf).strip(".json") + ".substitutions"
-    create_substitutions_file(out_text, dest_name)
-    return os.path.basename(conf).strip(".json") + ".substitutions"
+    dest_name = out_path + os.path.basename(conf)[:-5] + ".substitutions"
+    create_file(dest_name, out_text)
+    return dest_name
 
 
 def add_subs_to_makefile(makefile, subs_list):
@@ -144,6 +144,34 @@ def add_subs_to_makefile(makefile, subs_list):
     print("Makefile updated")
 
 
+def create_start_command(st_cmd, subs_list, st_cmd_folder):
+    with open(st_cmd, "r") as f:
+        lines = f.readlines()
+
+    db_load_template_comment_line = 0
+    env_paths_comment_line = 0
+    for l, line in enumerate(lines):
+        if "#< envPaths" in line:
+            env_paths_comment_line = l
+        if "## Load record instances" in line:
+            db_load_template_comment_line = l
+
+    for sub in subs_list:
+        out_lines = lines[:]
+        name = st_cmd_folder + sub[:-14] + ".cmd"
+        out_lines[env_paths_comment_line] = out_lines[env_paths_comment_line][1:]
+        out_lines[db_load_template_comment_line + 1] = (
+            "#" + out_lines[db_load_template_comment_line + 1]
+        )
+        out_lines.insert(
+            db_load_template_comment_line + 2,
+            'dbLoadTemplate("../../db/' + sub + '")\n',
+        )
+        with open(name, "w") as f:
+            f.writelines(out_lines)
+        print("Create '%s'" % name)
+
+
 if __name__ == "__main__":
     args = vars(parser())
 
@@ -152,10 +180,10 @@ if __name__ == "__main__":
             app_path = f + "/"
 
     # Configuration folder and files definition
-    if args["config"] is None:
+    if args.get("config", None) is None:
         conf_path = app_path + "config/"
     else:
-        conf_path = args["config"]
+        conf_path = args.get("config", None)
         conf_path += "" if conf_path[-1] == "/" else "/"
     conf_files = []
     if os.path.isdir(conf_path):
@@ -172,28 +200,53 @@ if __name__ == "__main__":
         exit()
 
     # Template file definition
-    template = args["template"]
+    template = args.get("template", None)
     if os.path.isfile(conf_path + template):
-        inp_text = load_template_from_file(conf_path + template)
+        subs_text = load_template_from_file(conf_path + template)
     else:
         print("Template file '%s' does not exist" % conf_path + template)
         exit()
 
     # Output path existence check
-    if args["out"] is None:
+    if args.get("out", None) is None:
         out_path = app_path + "Db/"
     else:
-        out_path = args["out"]
+        out_path = args.get("out", None)
         out_path += "" if out_path[-1] == "/" else "/"
     if not os.path.isdir(out_path):
         print("Output folder '%s' does not exist." % out_path)
         exit()
 
+    # Start command existence check
+    st_cmd = args.get("st_cmd", None)
+    if st_cmd is None:
+        for f in os.listdir("iocBoot"):
+            if f.startswith("ioc"):
+                st_cmd = "iocBoot/" + f + "/st.cmd"
+    if os.path.isfile(st_cmd):
+        st_cmd_folder = os.path.dirname(st_cmd)
+        if st_cmd_folder == "":
+            st_cmd_folder = "."
+        st_cmd_folder += "/"
+    else:
+        print("'%s' does not exist." % st_cmd)
+        exit()
+
     # Create substitutions
     subs_list = []
     for conf in conf_files:
-        subs_list.append(substitute(conf, inp_text, out_path))
+        name = create_substitutions(conf, subs_text, out_path)
+        subs_list.append(os.path.basename(name))
+
+    print("\n")
 
     # Update Makefile
     makefile = out_path + "Makefile"
     add_subs_to_makefile(makefile, subs_list)
+
+    print("\n")
+
+    # Create start command
+    create_start_command(st_cmd, subs_list, st_cmd_folder)
+
+    print("\nProcedure complete.")

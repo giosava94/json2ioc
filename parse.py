@@ -18,9 +18,10 @@ def parser():
         "-c",
         "--config",
         type=str,
-        help="""Path to a specific configuration folder containing
+        help="""Path to the configuration folder containing
             one or multiple configuration files and the template one.
-            COnfiguration files must be a .json file.
+            By default the app searches into the *App/config/ folder.
+            Configuration files must be a .json file.
             When receiving a folder it will read only .json files""",
     )
     main_parser.add_argument(
@@ -36,7 +37,15 @@ def parser():
         "--out",
         type=str,
         help="""Path to the folder where to create the substitutions files.
-            If not given it is the same of the template file.""",
+            If not given it is the same of the template file.
+            By default the app writes the output files in the *App/Db/ folder.""",
+    )
+    main_parser.add_argument(
+        "-s",
+        "--st-cmd",
+        type=str,
+        help="""Path to the specific st.cmd file to use as template.
+            By default the app search for the iocBoot/ioc*/st.cmd file.""",
     )
 
     # Start argcomplete
