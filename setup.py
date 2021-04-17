@@ -23,6 +23,7 @@ setup(
     ],
     package_dir={"": "src"},
     packages=find_packages(where="src"),
+    install_requires=["argcomplete"],
     python_requires=">=3.6",
     entry_points={"console_scripts": ["json2ioc = json2ioc.__main__:main"]},
 )
