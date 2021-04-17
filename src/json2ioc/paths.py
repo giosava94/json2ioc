@@ -8,7 +8,10 @@ def get_conf_files(config):
             if ".json" in f:
                 conf_files.append(config + f)
     elif os.path.isfile(config):
-        conf_files.append(config)
+        if config.endswith(".json"):
+            conf_files.append(config)
+        else:
+            raise ValueError("'%s' is not a '.json' file" % config)
     else:
         raise FileNotFoundError(
             "'%s' not a valid path (neither a folder or a file)" % config
