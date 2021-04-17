@@ -22,6 +22,7 @@ from .read_write import (
     write_text_to_file,
 )
 
+
 def main():
     args = vars(parser())
 
@@ -77,6 +78,7 @@ def main():
         print("Create '%s'" % dest_name)
 
     print("\nProcedure complete.")
+
 
 if __name__ == "__main__":
     main()

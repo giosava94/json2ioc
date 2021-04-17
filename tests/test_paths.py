@@ -58,12 +58,12 @@ def test_get_conf_files_dir_len1(json_conf_dir):
     assert len(files) == 1
 
 
-def test_get_conf_files_file(json_conf_json_file):
+def test_get_conf_files_json_file(json_conf_json_file):
     files = paths.get_conf_files(json_conf_json_file)
     assert len(files) == 1
 
 
-def test_get_conf_files_file(json_conf_not_json_file):
+def test_get_conf_files_not_json_file(json_conf_not_json_file):
     try:
         files = paths.get_conf_files(json_conf_not_json_file)
     except ValueError:

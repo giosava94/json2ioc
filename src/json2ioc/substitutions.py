@@ -100,7 +100,7 @@ def add_subs_to_makefile(lines, subs_list):
             i = l
     for sub in subs_list:
         new_line = "DB += %s\n" % sub
-        if not new_line in new_lines:
+        if new_line not in new_lines:
             new_lines.insert(i + 1, new_line)
             i += 1
     return new_lines
