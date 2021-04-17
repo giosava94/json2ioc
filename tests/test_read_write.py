@@ -1,30 +1,47 @@
-import pytest, os, json
+import pytest, json
 from testfixtures import TempDirectory
-from json2ioc.read_write import (
-    load_data_from_json,
-    load_lines_from_file,
-    load_text_from_file,
-    write_lines_to_file,
-    write_text_to_file,
-)
+import json2ioc.read_write as rw
 
 
 @pytest.fixture()
-def ioc_dir():
+def json_file():
     with TempDirectory() as dir:
-        dir.makedir("testApp/Db")
-        dir.makedir("iocBoot/ioctest")
-        yield dir
+        conf_data = {"example_name": {"example_property": "example_value"}}
+        s = json.dumps(conf_data)
+        p = dir.write("example.json", s, "utf-8")
+        yield {"path": p, "data": conf_data}
 
 
 @pytest.fixture()
-def ioc_single_conf_file(ioc_dir):
-    conf_data = {"example_name": {"example_property": "example_value"}}
-    s = json.dumps(conf_data)
-    p = ioc_dir.write("example.json", s, "utf-8")
-    yield {"path": p, "data": conf_data}
+def text_file():
+    with TempDirectory() as dir:
+        lines = ["First line\n", "Second line\n"]
+        text = "".join(lines)
+        p = dir.write("text.txt", text, "utf-8")
+        yield {"path": p, "lines": lines, "text": text}
 
 
-def test_load_data_from_json(ioc_single_conf_file):
-    d = load_data_from_json(ioc_single_conf_file["path"])
-    assert d == ioc_single_conf_file["data"]
+def test_load_data_from_json(json_file):
+    d = rw.load_data_from_json(json_file["path"])
+    assert d == json_file["data"]
+
+
+def test_load_lines_from_file(text_file):
+    d = rw.load_lines_from_file(text_file["path"])
+    for i in range(len(d)):
+        assert d[i] == text_file["lines"][i]
+
+
+def test_load_text_from_file(text_file):
+    d = rw.load_text_from_file(text_file["path"])
+    assert d == text_file["text"]
+
+
+def test_write_lines_to_file(text_file):
+    rw.write_lines_to_file(text_file["path"], text_file["lines"])
+    assert 1
+
+
+def test_write_text_to_file(text_file):
+    rw.write_text_to_file(text_file["path"], text_file["text"])
+    assert 1
