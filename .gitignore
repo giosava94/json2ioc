@@ -1,6 +1,7 @@
 **/__pycache__
 **/json2ioc.egg-info
 *.pyc
+.pytest_cache
 .vscode
 build
 dist
