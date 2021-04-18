@@ -19,16 +19,18 @@ def get_conf_files(config):
     return conf_files
 
 
-def get_config(conf_path, workspace):
+def get_config(conf_path=None, workspace=None):
     """
-    Set the correct path to the configuration folder
-    or file based on the chosen workspace.
+    Set the correct path to the configuration folder.
+    If conf_path is None use the default value 'json_config/'
+    merged with the workspace.
     Return the path to the json configuration file or dir.
     Raise error if the the given path is not valid.
     """
 
     if conf_path is None:
-        conf_path = os.path.join(workspace, "json_config")
+        workspace = "./" if workspace is None else workspace
+        conf_path = os.path.join(workspace, "json_config/")
     if os.path.exists(conf_path):
         return conf_path
     raise FileNotFoundError(

@@ -102,3 +102,29 @@ def test_get_conf_files_not_exist_file():
 """
 GET CONFIG
 """
+
+
+def test_get_config(json_empty_conf_dir):
+    """
+    `get_config` receives valid path. Workspace is ignored
+    """
+    conf_path = paths.get_config(json_empty_conf_dir.path)
+    assert conf_path == json_empty_conf_dir.path
+    conf_path = paths.get_config(json_empty_conf_dir.path, ".")
+    assert conf_path == json_empty_conf_dir.path
+
+
+def test_get_config_without_conf_path():
+    """
+    `get_config` receives None as conf_path.
+    The default folder in this case does not exists.
+    We check in the raised error if the path concatenation is correct
+    """
+    try:
+        conf_path = paths.get_config()
+    except FileNotFoundError as e:
+        assert str(e) == "Configuration file or directory './json_config/' not found"
+    try:
+        conf_path = paths.get_config(workspace="workspace")
+    except FileNotFoundError as e:
+        assert str(e) == "Configuration file or directory 'workspace/json_config/' not found"

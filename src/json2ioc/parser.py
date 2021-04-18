@@ -24,7 +24,7 @@ def parser():
         "-c",
         "--config",
         type=str,
-        help="Path to the configuration folder containing one or multiple configuration files or path to a specific configuration. By default the app searches into the json_config folder in the workspace. Configuration files must be .json files. When receiving a folder it will read all and only .json files",
+        help="Path to the configuration folder containing one or multiple configuration files or path to a specific configuration. By default the app searches into the json_config folder in the workspace. Configuration files must be .json files or a folder. When receiving a folder it will read all and only .json files",
     )
     main_parser.add_argument(
         "-t",
