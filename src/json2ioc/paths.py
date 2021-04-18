@@ -37,7 +37,7 @@ def get_config(conf_path=None, workspace="."):
     )
 
 
-def get_db_dir(workspace=".", db="Db/"):
+def get_db_dir(workspace=".", db="Db"):
     """
     Check if workspace dir contains a *App folder
     with the given Db directory and return it.

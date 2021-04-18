@@ -95,7 +95,7 @@ def test_get_db_dir(empty_dir, ioc_dir_with_only_app, ioc_dir):
 
     # Receives a valid workspace.
     db_dir = paths.get_db_dir(ioc_dir.path)
-    assert db_dir == os.path.join(ioc_dir.path, "testApp/Db/")
+    assert db_dir == ioc_dir.getpath("testApp/Db")
 
     # Receives an invalid workspaces.
     workspace = "invalid_path"
@@ -119,7 +119,7 @@ def test_get_db_dir(empty_dir, ioc_dir_with_only_app, ioc_dir):
         db_dir = paths.get_db_dir(workspace)
         assert 0
     except FileNotFoundError as e:
-        assert str(e) == "Directory 'Db/' inside '%s' not found" % os.path.join(
+        assert str(e) == "Directory 'Db' inside '%s' not found" % os.path.join(
             workspace, "testApp"
         )
 
@@ -260,6 +260,37 @@ def test_get_st_cmd_template(ioc_dir):
     # (The test workspace is invalid)
     try:
         st_cmd = paths.get_st_cmd_template()
+        assert 0
+    except FileNotFoundError:
+        assert 1
+
+
+def test_get_subs_out_dir(ioc_dir):
+    """
+    Test `get_subs_out_dir`
+    """
+
+    # Receives valid path. Workspace is ignored
+    out_dir = paths.get_subs_out_dir(ioc_dir.path)
+    assert out_dir == ioc_dir.path
+    out_dir = paths.get_subs_out_dir(ioc_dir.path, ".")
+    assert out_dir == ioc_dir.path
+
+    # Receives and invalid path.
+    try:
+        out_dir = paths.get_subs_out_dir("invalid_path")
+        assert 0
+    except FileNotFoundError:
+        assert 1
+
+    # Receives None as out_dir but the workspace is valid
+    out_dir = paths.get_subs_out_dir(workspace=ioc_dir.path)
+    assert out_dir == ioc_dir.getpath("testApp/Db")
+
+    # Receives None as out_dir but the workspace is not valid
+    # (The test workspace is invalid)
+    try:
+        out_dir = paths.get_subs_out_dir()
         assert 0
     except FileNotFoundError:
         assert 1
