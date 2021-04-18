@@ -1,7 +1,8 @@
 # JSON2IOC
 
 [![Python package](https://github.com/giosava94/json2ioc/actions/workflows/python-package.yaml/badge.svg)](https://github.com/giosava94/json2ioc/actions/workflows/python-package.yaml)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](code_of_conduct.md) 
+[![codecov](https://codecov.io/gh/giosava94/json2ioc/branch/main/graph/badge.svg?token=CE78G2GJX0)](https://codecov.io/gh/giosava94/json2ioc)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](code_of_conduct.md)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 This project uses JSON configuration files to create substitutions and start command files. It can optionally compile the project for you.
