@@ -154,7 +154,7 @@ def get_subs_template(subs_template=None, workspace="."):
     raise FileNotFoundError("Substitutions file '%s' not found" % subs_template)
 
 
-def get_work_dir(workspace="."):
+def get_workspace(workspace="."):
     """
     Raise error if the workspace does not exist.
     """

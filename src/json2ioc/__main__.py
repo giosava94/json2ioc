@@ -12,7 +12,7 @@ from .paths import (
     get_st_cmd_template,
     get_subs_out_dir,
     get_subs_template,
-    get_work_dir,
+    get_workspace,
 )
 from .read_write import (
     load_data_from_json,
@@ -28,7 +28,7 @@ def main():
 
     # Get correct inputs and outputs from args.
     # Check file and folder existence
-    workspace = get_work_dir(args.get("workspace"))
+    workspace = get_workspace(args.get("workspace"))
     config_path = get_config(args.get("config"), workspace)
     subs_template = get_subs_template(args.get("subs_template"), workspace)
     st_cmd_template = get_st_cmd_template(args.get("st_cmd_template"), workspace)
