@@ -294,3 +294,34 @@ def test_get_subs_out_dir(ioc_dir):
         assert 0
     except FileNotFoundError:
         assert 1
+
+def test_set_subs_template(ioc_dir):
+    """
+    Test `get_subs_template`
+    """
+
+    # Receives valid path. Workspace is ignored
+    path = ioc_dir.getpath("testApp/Db/template.substitutions")
+    template = paths.get_subs_template(path)
+    assert template == path
+    template = paths.get_subs_template(path, "workspace")
+    assert template == path
+
+    # Receives and invalid path.
+    try:
+        template = paths.get_subs_template("invalid_path")
+        assert 0
+    except FileNotFoundError:
+        assert 1
+
+    # Receives None as template but the workspace is valid
+    template = paths.get_subs_template(workspace=ioc_dir.path)
+    assert template == path
+
+    # Receives None as out_dir but the workspace is not valid
+    # (The test workspace is invalid)
+    try:
+        template = paths.get_subs_template()
+        assert 0
+    except FileNotFoundError:
+        assert 1
