@@ -1,7 +1,7 @@
 import argcomplete, argparse
 
 
-def parser():
+def parser(args):
     """
     Substitutions file creator parser details
     """
@@ -17,7 +17,7 @@ def parser():
         "-w",
         "--workspace",
         type=str,
-        default="./",
+        default=".",
         help="Specify workspace. By default it is the folder where the command is executed",
     )
     main_parser.add_argument(
@@ -62,4 +62,4 @@ def parser():
     # Start argcomplete
     argcomplete.autocomplete(main_parser)
 
-    return main_parser.parse_args()
+    return main_parser.parse_args(args)

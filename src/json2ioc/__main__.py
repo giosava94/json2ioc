@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os
+import os, sys
 from .parser import parser
 from .substitutions import generate_substitutions, add_subs_to_makefile
 from .start_command import get_st_cmd_relevant_indices, generate_start_command
@@ -24,7 +24,7 @@ from .read_write import (
 
 
 def main():
-    args = vars(parser())
+    args = vars(parser(sys.argv[1:]))
 
     # Get correct inputs and outputs from args.
     # Check file and folder existence
