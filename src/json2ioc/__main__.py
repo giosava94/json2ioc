@@ -8,7 +8,7 @@ from .paths import (
     get_config,
     get_conf_files,
     get_makefile,
-    get_st_cmd_dir,
+    get_st_cmd_out_dir,
     get_st_cmd_template,
     get_subs_out_dir,
     get_subs_template,
@@ -31,8 +31,9 @@ def main():
     workspace = get_work_dir(args.get("workspace"))
     config_path = get_config(args.get("config"), workspace)
     subs_template = get_subs_template(args.get("subs_template"), workspace)
-    st_cmd = get_st_cmd_template(args.get("st_cmd_template"), workspace)
+    st_cmd_template = get_st_cmd_template(args.get("st_cmd_template"), workspace)
     subs_out = get_subs_out_dir(args.get("subs_out"), workspace)
+    st_cmd_dir_out = get_st_cmd_out(args.get("st_cmd_out"), workspace)
     run_make = args.get("make")
 
     conf_files = get_conf_files(config_path)
@@ -67,13 +68,12 @@ def main():
         print("Skipping compilation\n")
 
     # Create start command
-    st_cmd_dir = get_st_cmd_dir(workspace)
-    st_cmd_lines = load_lines_from_file(st_cmd)
+    st_cmd_lines = load_lines_from_file(st_cmd_template)
     indices = get_st_cmd_relevant_indices(st_cmd_lines)
     for substitution in subs_list:
         new_lines = generate_start_command(st_cmd_lines, indices, substitution)
         file_name = os.path.basename(substitution)[:-14] + ".cmd"
-        dest_name = os.path.join(st_cmd_dir, file_name)
+        dest_name = os.path.join(st_cmd_dir_out, file_name)
         write_lines_to_file(dest_name, new_lines)
         print("Create '%s'" % dest_name)
 

@@ -33,7 +33,7 @@ def parser():
         help="Name of a specific template file to use as reference when generating the new substitutions files.",
     )
     main_parser.add_argument(
-        "-s",
+        "-T",
         "--st-cmd-template",
         type=str,
         help="Path to the specific start command file to use as template. By default the app search for the iocBoot/ioc*/st.cmd file.",
@@ -51,6 +51,12 @@ def parser():
         "--make",
         action="store_true",
         help="Compile project after file creation",
+    )
+    main_parser.add_argument(
+        "-O",
+        "--st-cmd-out",
+        type=str,
+        help="Path to the folder where to create the start command files. By default the app writes the output files in the iocBoot/ioc* folder.",
     )
 
     # Start argcomplete

@@ -94,6 +94,22 @@ def get_st_cmd_dir(workspace):
     )
 
 
+def get_st_cmd_out_dir(st_cmd_out=None, workspace="."):
+    """
+    Return the correct output folder for the start command files.
+    By default it is the iocBoot/ioc* one if it exists.
+    Raise error if the specified folder does not exist.
+    """
+
+    if st_cmd_out is None:
+        return get_st_cmd_dir(workspace)
+    elif os.path.isdir(st_cmd_out):
+        return st_cmd_out
+    raise FileNotFoundError(
+        "Output directory for start command '%s' not found" % st_cmd_out
+    )
+
+
 def get_st_cmd_template(st_cmd_template, workspace):
     """
     Return the start command created when generating the IOC
