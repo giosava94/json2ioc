@@ -213,3 +213,35 @@ def test_get_st_cmd_out_dir(ioc_dir):
         assert 0
     except FileNotFoundError:
         assert 1
+
+
+def test_get_st_cmd_template(ioc_dir):
+    """
+    Test `get_st_cmd_template`
+    """
+
+    # Receives valid path. Workspace is ignored
+    path = ioc_dir.getpath("iocBoot/ioctest/st.cmd")
+    st_cmd = paths.get_st_cmd_template(path)
+    assert st_cmd == path
+    st_cmd = paths.get_st_cmd_template(path, "workspace")
+    assert st_cmd == path
+
+    # Receives and invalid path.
+    try:
+        st_cmd = paths.get_st_cmd_template("invalid_path")
+        assert 0
+    except FileNotFoundError:
+        assert 1
+
+    # Receives None as st_cmd but the workspace is valid
+    st_cmd = paths.get_st_cmd_template(workspace=ioc_dir.path)
+    assert st_cmd == path
+
+    # Receives None as out_dir but the workspace is not valid
+    # (The test workspace is invalid)
+    try:
+        st_cmd = paths.get_st_cmd_template()
+        assert 0
+    except FileNotFoundError:
+        assert 1

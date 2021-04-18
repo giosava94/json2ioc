@@ -51,6 +51,7 @@ def ioc_dir():
         dir.makedir("testApp/Db")
         dir.makedir("iocBoot/ioctest")
         dir.write("testApp/Db/Makefile", "", "utf-8")
+        dir.write("iocBoot/ioctest/st.cmd", "", "utf-8")
         yield dir
 
 

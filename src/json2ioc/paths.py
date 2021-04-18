@@ -109,7 +109,7 @@ def get_st_cmd_out_dir(st_cmd_out=None, workspace="."):
     )
 
 
-def get_st_cmd_template(st_cmd_template, workspace):
+def get_st_cmd_template(st_cmd_template=None, workspace="."):
     """
     Return the start command created when generating the IOC
     with makeBaseApp.pl if no start command is specified.
@@ -117,8 +117,8 @@ def get_st_cmd_template(st_cmd_template, workspace):
     """
 
     if st_cmd_template is None:
-        db_dir = get_st_cmd_dir(workspace)
-        st_cmd_template = os.path.join(db_dir, "st.cmd")
+        st_cmd_dir = get_st_cmd_dir(workspace)
+        st_cmd_template = os.path.join(st_cmd_dir, "st.cmd")
     if os.path.isfile(st_cmd_template):
         return st_cmd_template
     raise FileNotFoundError("Substitutions file '%s' not found" % st_cmd_template)
