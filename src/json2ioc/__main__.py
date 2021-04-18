@@ -47,7 +47,7 @@ def main():
         config = load_data_from_json(conf)
         out_text = generate_substitutions(subs_text, config)
         file_name = os.path.basename(conf)[:-5] + ".substitutions"
-        dest_name = subs_out + file_name
+        dest_name = os.path.join(subs_out, file_name)
         write_text_to_file(dest_name, out_text)
         subs_list.append(file_name)
         print("Created '%s'" % dest_name)
@@ -73,7 +73,7 @@ def main():
     for substitution in subs_list:
         new_lines = generate_start_command(st_cmd_lines, indices, substitution)
         file_name = os.path.basename(substitution)[:-14] + ".cmd"
-        dest_name = st_cmd_dir + file_name
+        dest_name = os.path.join(st_cmd_dir, file_name)
         write_lines_to_file(dest_name, new_lines)
         print("Create '%s'" % dest_name)
 

@@ -28,7 +28,7 @@ def get_config(conf_path, workspace):
     """
 
     if conf_path is None:
-        conf_path = workspace + "json_config/"
+        conf_path = os.path.join(workspace, "json_config")
     if os.path.exists(conf_path):
         return conf_path
     raise FileNotFoundError(
@@ -46,9 +46,8 @@ def get_db_dir(workspace, db="Db/"):
 
     for f in os.listdir(workspace):
         if f.endswith("App"):
-            app_dir = workspace + f + "/"
-            db_dir = app_dir + db
-            db_dir += "" if db_dir[-1] == "/" else "/"
+            app_dir = os.path.join(workspace, f)
+            db_dir = os.path.join(app_dir, db)
             if os.path.isdir(db_dir):
                 return db_dir
             raise FileNotFoundError(
@@ -80,10 +79,10 @@ def get_st_cmd_dir(workspace):
 
     for f in os.listdir(workspace):
         if f == "iocBoot":
-            ioc_boot_dir = workspace + f + "/"
+            ioc_boot_dir = os.path.join(workspace, f)
             for d in os.listdir(ioc_boot_dir):
                 if d.startswith("ioc"):
-                    st_cmd_dir = ioc_boot_dir + d + "/"
+                    st_cmd_dir = os.path.join(ioc_boot_dir, d)
                     return st_cmd_dir
             raise FileNotFoundError(
                 "Folder starting with 'ioc' inside '%s' not found" % (ioc_boot_dir)
@@ -102,7 +101,7 @@ def get_st_cmd_template(st_cmd_template, workspace):
 
     if st_cmd_template is None:
         db_dir = get_st_cmd_dir(workspace)
-        st_cmd_template = db_dir + "st.cmd"
+        st_cmd_template = os.path.join(db_dir, "st.cmd")
     if os.path.isfile(st_cmd_template):
         return st_cmd_template
     raise FileNotFoundError("Substitutions file '%s' not found" % st_cmd_template)
@@ -118,7 +117,6 @@ def get_subs_out_dir(subs_out, workspace):
     if subs_out is None:
         return get_db_dir(workspace)
     elif os.path.isdir(subs_out):
-        subs_out += "" if subs_out[-1] == "/" else "/"
         return subs_out
     raise FileNotFoundError(
         "Output directory for substitutions '%s' not found" % subs_out
@@ -133,7 +131,7 @@ def get_subs_template(subs_template, workspace):
 
     if subs_template is None:
         db_dir = get_db_dir(workspace)
-        subs_template = db_dir + "template.substitutions"
+        subs_template = os.path.join(db_dir, "template.substitutions")
     if os.path.isfile(subs_template):
         return subs_template
     raise FileNotFoundError("Substitutions file '%s' not found" % subs_template)
@@ -145,7 +143,6 @@ def get_work_dir(workspace):
     Raise error if the workspace does not exist.
     """
 
-    workspace += "" if workspace[-1] == "/" else "/"
     if os.path.isdir(workspace):
         return workspace
     raise FileNotFoundError("Received workspace '%s' not found" % workspace)
