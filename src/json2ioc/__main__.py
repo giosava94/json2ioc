@@ -33,7 +33,7 @@ def main():
     subs_template = get_subs_template(args.get("subs_template"), workspace)
     st_cmd_template = get_st_cmd_template(args.get("st_cmd_template"), workspace)
     subs_out = get_subs_out_dir(args.get("subs_out"), workspace)
-    st_cmd_dir_out = get_st_cmd_out(args.get("st_cmd_out"), workspace)
+    st_cmd_dir_out = get_st_cmd_out_dir(args.get("st_cmd_out"), workspace)
     run_make = args.get("make")
 
     conf_files = get_conf_files(config_path)
