@@ -48,23 +48,57 @@ def json_conf_not_json_file():
         yield p
 
 
+"""
+GET_CONF_FILES
+"""
+
+
 def test_get_conf_files_dir_len0(json_empty_conf_dir):
+    """
+    `gwt_conf_files` receives the empty directory `json_config`
+    """
     files = paths.get_conf_files(os.path.join(json_empty_conf_dir.path, "json_config"))
     assert len(files) == 0
 
 
 def test_get_conf_files_dir_len1(json_conf_dir):
+    """
+    `gwt_conf_files` receives the directory `json_config`
+    which has both json and not json files (in this case
+    1 json and 1 txt)
+    """
     files = paths.get_conf_files(os.path.join(json_conf_dir.path, "json_config"))
     assert len(files) == 1
 
 
 def test_get_conf_files_json_file(json_conf_json_file):
+    """
+    `gwt_conf_files` receives the name of a json file
+    """
     files = paths.get_conf_files(json_conf_json_file)
     assert len(files) == 1
 
 
 def test_get_conf_files_not_json_file(json_conf_not_json_file):
+    """
+    `gwt_conf_files` receives the name of a not json file
+    """
     try:
         files = paths.get_conf_files(json_conf_not_json_file)
     except ValueError:
         assert 1
+
+
+def test_get_conf_files_not_exist_file():
+    """
+    `gwt_conf_files` receives the name of a not existing file
+    """
+    try:
+        files = paths.get_conf_files("not_existing.json")
+    except FileNotFoundError:
+        assert 1
+
+
+"""
+GET CONFIG
+"""
