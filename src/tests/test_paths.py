@@ -123,6 +123,16 @@ def test_get_db_dir(empty_dir, ioc_dir_with_only_app, ioc_dir):
             workspace, "testApp"
         )
 
+    # Receives no arguments (the current workspace is invalid
+    # so we check in the error message the path is correct)
+    try:
+        db_dir = paths.get_db_dir()
+        assert 0
+    except FileNotFoundError as e:
+        assert (
+            str(e) == "Directory ending with 'App' in selected workspace '.' not found"
+        )
+
 
 def test_get_makefile(ioc_dir):
     """
@@ -153,19 +163,19 @@ def test_get_st_cmd_dir(empty_dir, ioc_dir_with_only_iocboot, ioc_dir):
     """
 
     # Receives a valid workspace.
-    db_dir = paths.get_st_cmd_dir(ioc_dir.path)
-    assert db_dir == os.path.join(ioc_dir.path, "iocBoot/ioctest")
+    st_cmd_dir = paths.get_st_cmd_dir(ioc_dir.path)
+    assert st_cmd_dir == os.path.join(ioc_dir.path, "iocBoot/ioctest")
 
     # Receives an invalid workspaces.
     workspace = "invalid_path"
     try:
-        db_dir = paths.get_st_cmd_dir(workspace)
+        st_cmd_dir = paths.get_st_cmd_dir(workspace)
         assert 0
     except FileNotFoundError:
         assert 1
     workspace = empty_dir.path
     try:
-        db_dir = paths.get_st_cmd_dir(workspace)
+        st_cmd_dir = paths.get_st_cmd_dir(workspace)
         assert 0
     except FileNotFoundError as e:
         assert (
@@ -174,7 +184,7 @@ def test_get_st_cmd_dir(empty_dir, ioc_dir_with_only_iocboot, ioc_dir):
         )
     workspace = ioc_dir_with_only_iocboot.path
     try:
-        db_dir = paths.get_st_cmd_dir(workspace)
+        st_cmd_dir = paths.get_st_cmd_dir(workspace)
         assert 0
     except FileNotFoundError as e:
         assert str(
@@ -182,6 +192,14 @@ def test_get_st_cmd_dir(empty_dir, ioc_dir_with_only_iocboot, ioc_dir):
         ) == "Folder starting with 'ioc' inside '%s' not found" % os.path.join(
             workspace, "iocBoot"
         )
+
+    # Receives no arguments (the current workspace is invalid
+    # so we check in the error message the path is correct)
+    try:
+        st_cmd_dir = paths.get_st_cmd_dir()
+        assert 0
+    except FileNotFoundError as e:
+        assert str(e) == "Directory 'iocBoot' in selected workspace '.' not found"
 
 
 def test_get_st_cmd_out_dir(ioc_dir):

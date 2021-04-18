@@ -37,7 +37,7 @@ def get_config(conf_path=None, workspace="."):
     )
 
 
-def get_db_dir(workspace, db="Db/"):
+def get_db_dir(workspace=".", db="Db/"):
     """
     Check if workspace dir contains a *App folder
     with the given Db directory and return it.
@@ -71,7 +71,7 @@ def get_makefile(subs_out):
     raise FileNotFoundError("'%s' not found" % makefile)
 
 
-def get_st_cmd_dir(workspace):
+def get_st_cmd_dir(workspace="."):
     """
     Check if workspace dir contains an iocBoot folder
     with and ioc* folder inside and return it.
@@ -124,7 +124,7 @@ def get_st_cmd_template(st_cmd_template=None, workspace="."):
     raise FileNotFoundError("Substitutions file '%s' not found" % st_cmd_template)
 
 
-def get_subs_out_dir(subs_out, workspace):
+def get_subs_out_dir(subs_out=None, workspace="."):
     """
     Return the correct output folder for the substitutions files.
     By default it is the *App/Db one if it exists.
@@ -140,7 +140,7 @@ def get_subs_out_dir(subs_out, workspace):
     )
 
 
-def get_subs_template(subs_template, workspace):
+def get_subs_template(subs_template=None, workspace="."):
     """
     Return the default substitutions template if no one is given.
     In any case raise error if the template does not exists.
@@ -154,9 +154,8 @@ def get_subs_template(subs_template, workspace):
     raise FileNotFoundError("Substitutions file '%s' not found" % subs_template)
 
 
-def get_work_dir(workspace):
+def get_work_dir(workspace="."):
     """
-    Correctly format received workspace dir.
     Raise error if the workspace does not exist.
     """
 
