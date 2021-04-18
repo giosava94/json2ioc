@@ -295,6 +295,7 @@ def test_get_subs_out_dir(ioc_dir):
     except FileNotFoundError:
         assert 1
 
+
 def test_set_subs_template(ioc_dir):
     """
     Test `get_subs_template`
@@ -322,6 +323,30 @@ def test_set_subs_template(ioc_dir):
     # (The test workspace is invalid)
     try:
         template = paths.get_subs_template()
+        assert 0
+    except FileNotFoundError:
+        assert 1
+
+
+def test_get_workspace(empty_dir, json_conf_json_file):
+    """
+    Test `get_workspace`
+    """
+
+    # Receive an existing folder
+    path = paths.get_workspace(empty_dir.path)
+    assert path == empty_dir.path
+
+    # Receive an axisting file
+    try:
+        path = paths.get_workspace(json_conf_json_file)
+        assert 0
+    except FileNotFoundError:
+        assert 1
+
+    # Receive a non existing path
+    try:
+        path = paths.get_workspace("invalid_path")
         assert 0
     except FileNotFoundError:
         assert 1
