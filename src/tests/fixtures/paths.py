@@ -59,3 +59,10 @@ def ioc_dir_with_only_app():
     with TempDirectory() as dir:
         dir.makedir("testApp")
         yield dir
+
+
+@pytest.fixture()
+def ioc_dir_with_only_iocboot():
+    with TempDirectory() as dir:
+        dir.makedir("iocBoot")
+        yield dir

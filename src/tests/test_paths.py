@@ -8,6 +8,7 @@ from fixtures.paths import (
     empty_dir,
     ioc_dir,
     ioc_dir_with_only_app,
+    ioc_dir_with_only_iocboot,
 )
 
 
@@ -135,3 +136,40 @@ def test_get_makefile(ioc_dir):
         assert 0
     except FileNotFoundError:
         assert 1
+
+
+def test_get_st_cmd_dir(empty_dir, ioc_dir_with_only_iocboot, ioc_dir):
+    """
+    Test `get_st_cmd_dir`
+    """
+
+    # Receives a valid workspace.
+    db_dir = paths.get_st_cmd_dir(ioc_dir.path)
+    assert db_dir == os.path.join(ioc_dir.path, "iocBoot/ioctest")
+
+    # Receives an invalid workspaces.
+    workspace = "invalid_path"
+    try:
+        db_dir = paths.get_st_cmd_dir(workspace)
+        assert 0
+    except FileNotFoundError:
+        assert 1
+    workspace = empty_dir.path
+    try:
+        db_dir = paths.get_st_cmd_dir(workspace)
+        assert 0
+    except FileNotFoundError as e:
+        assert (
+            str(e)
+            == "Directory 'iocBoot' in selected workspace '%s' not found" % workspace
+        )
+    workspace = ioc_dir_with_only_iocboot.path
+    try:
+        db_dir = paths.get_st_cmd_dir(workspace)
+        assert 0
+    except FileNotFoundError as e:
+        assert str(
+            e
+        ) == "Folder starting with 'ioc' inside '%s' not found" % os.path.join(
+            workspace, "iocBoot"
+        )
