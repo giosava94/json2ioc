@@ -63,15 +63,24 @@ def test_get_config(json_empty_conf_dir):
     conf_path = paths.get_config(json_empty_conf_dir.path, ".")
     assert conf_path == json_empty_conf_dir.path
 
+    # Receives and invalid path.
+    try:
+        conf_path = paths.get_config("invalid_path")
+        assert 0
+    except FileNotFoundError:
+        assert 1
+
     # Receives None as conf_path.
     # The default folder in this case does not exists.
     # We check in the raised error if the path concatenation is correct
     try:
         conf_path = paths.get_config()
+        assert 0
     except FileNotFoundError as e:
         assert str(e) == "Configuration file or directory './json_config/' not found"
     try:
         conf_path = paths.get_config(workspace="workspace")
+        assert 0
     except FileNotFoundError as e:
         assert (
             str(e)
