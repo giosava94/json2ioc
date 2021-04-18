@@ -4,10 +4,23 @@ import json2ioc.paths as paths
 
 
 @pytest.fixture()
+def empty_dir():
+    with TempDirectory() as dir:
+        yield dir
+
+
+@pytest.fixture()
 def ioc_dir():
     with TempDirectory() as dir:
         dir.makedir("testApp/Db")
         dir.makedir("iocBoot/ioctest")
+        yield dir
+
+
+@pytest.fixture()
+def ioc_dir_with_only_app():
+    with TempDirectory() as dir:
+        dir.makedir("testApp")
         yield dir
 
 
@@ -85,6 +98,7 @@ def test_get_conf_files_not_json_file(json_conf_not_json_file):
     """
     try:
         files = paths.get_conf_files(json_conf_not_json_file)
+        assert 0
     except ValueError:
         assert 1
 
@@ -95,6 +109,7 @@ def test_get_conf_files_not_exist_file():
     """
     try:
         files = paths.get_conf_files("not_existing.json")
+        assert 0
     except FileNotFoundError:
         assert 1
 
@@ -127,4 +142,50 @@ def test_get_config_without_conf_path():
     try:
         conf_path = paths.get_config(workspace="workspace")
     except FileNotFoundError as e:
-        assert str(e) == "Configuration file or directory 'workspace/json_config/' not found"
+        assert (
+            str(e)
+            == "Configuration file or directory 'workspace/json_config/' not found"
+        )
+
+
+"""
+GET_DB_DIR
+"""
+
+
+def test_get_db_dir(ioc_dir):
+    """
+    `get_db_dir` receives a valid workspace.
+    """
+    db_dir = paths.get_db_dir(ioc_dir.path)
+    assert db_dir == os.path.join(ioc_dir.path, "testApp/Db/")
+
+
+def test_get_db_dir(empty_dir, ioc_dir_with_only_app):
+    """
+    `get_db_dir` receives an invalid workspaces.
+    """
+    workspace = "invalid_path"
+    try:
+        db_dir = paths.get_db_dir(workspace)
+        assert 0
+    except FileNotFoundError:
+        assert 1
+    workspace = empty_dir.path
+    try:
+        db_dir = paths.get_db_dir(workspace)
+        assert 0
+    except FileNotFoundError as e:
+        assert (
+            str(e)
+            == "Directory ending with 'App' in selected workspace '%s' not found"
+            % workspace
+        )
+    workspace = ioc_dir_with_only_app.path
+    try:
+        db_dir = paths.get_db_dir(workspace)
+        assert 0
+    except FileNotFoundError as e:
+        assert str(e) == "Directory 'Db/' inside '%s' not found" % os.path.join(
+            workspace, "testApp"
+        )
