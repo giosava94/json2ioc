@@ -13,6 +13,7 @@ def ioc_dir():
     with TempDirectory() as dir:
         dir.makedir("testApp/Db")
         dir.makedir("iocBoot/ioctest")
+        dir.write("testApp/Db/Makefile", "", "utf-8")
         yield dir
 
 

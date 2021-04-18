@@ -139,3 +139,27 @@ def test_get_db_dir(empty_dir, ioc_dir_with_only_app):
         assert str(e) == "Directory 'Db/' inside '%s' not found" % os.path.join(
             workspace, "testApp"
         )
+
+
+"""
+GET_MAKEFILE
+"""
+
+
+def test_get_makefile(ioc_dir):
+    """
+    `get_makefile` receives a valid path.
+    """
+    makefile = paths.get_makefile(ioc_dir.getpath("testApp/Db"))
+    assert makefile == os.path.join(ioc_dir.getpath("testApp/Db"), "Makefile")
+
+
+def test_get_makefile_invalid():
+    """
+    `get_makefile` receives an invalid path.
+    """
+    try:
+        makefile = paths.get_makefile("invalid_path")
+        assert 0
+    except FileNotFoundError:
+        assert 1

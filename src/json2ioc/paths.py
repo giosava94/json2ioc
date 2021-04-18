@@ -6,7 +6,7 @@ def get_conf_files(config):
     if os.path.isdir(config):
         for f in os.listdir(config):
             if ".json" in f:
-                conf_files.append(config + f)
+                conf_files.append(os.path.join(config, f))
     elif os.path.isfile(config):
         if config.endswith(".json"):
             conf_files.append(config)
@@ -66,7 +66,7 @@ def get_makefile(subs_out):
     Raise error if the *App/Db/Makefile is not a file.
     """
 
-    makefile = subs_out + "Makefile"
+    makefile = os.path.join(subs_out, "Makefile")
     if os.path.isfile(makefile):
         return makefile
     raise FileNotFoundError("'%s' not found" % makefile)
