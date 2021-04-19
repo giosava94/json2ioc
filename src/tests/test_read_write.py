@@ -1,4 +1,4 @@
-import pytest, json
+import json
 import json2ioc.read_write as rw
 from fixtures.read_write import json_text_dir, text_lines
 

@@ -1,4 +1,4 @@
-import pytest, os
+import os
 import json2ioc.paths as paths
 from fixtures.paths import (
     json_empty_conf_dir,

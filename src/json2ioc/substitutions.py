@@ -37,7 +37,7 @@ def find_lines_to_replace(inp_text, start=0):
     inp_lines = []
     end = start
     counter = 0
-    while True:
+    while end < len(inp_text) - 1:
         if inp_text[end] == "{":
             counter += 1
         elif inp_text[end] == "}":
@@ -66,7 +66,7 @@ def replace_macros(inp_lines, item):
 
 def generate_substitutions(inp_text, conf):
     """
-    From configuration file and input text,
+    From configuration object and input text,
     search the `{pattern {` string and then
     substitute macros and create substitutions file.
     """
