@@ -1,0 +1,7 @@
+# My example template
+
+file db/example.template { pattern 
+    { PREFIX,     SCAN }
+    { $(pv_prefix) "1 second"}
+    { $(pv_prefix) "3 second"}
+}

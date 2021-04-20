@@ -1,0 +1,6 @@
+modules/
+O.*
+db/*
+dbd/*
+bin/*
+*envPaths
