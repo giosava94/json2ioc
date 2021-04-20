@@ -1,0 +1,1 @@
+device(lsi,INST_IO,devexample2Version,"example2 version")
