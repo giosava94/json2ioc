@@ -45,5 +45,7 @@ def write_lines_to_file(name, lines):
     Write lines to file.
     """
 
+    if not type(lines) is list:
+        raise TypeError("Received lines value '%s' is not a list" % lines)
     with open(name, "w") as f:
         f.writelines(lines)

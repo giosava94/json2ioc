@@ -1,7 +1,7 @@
 from json2ioc.parser import parser
 
 
-def test_parser():
+def test_parser_empty():
     p = parser([])
     assert p.config is None
     assert not p.make
@@ -11,6 +11,8 @@ def test_parser():
     assert p.subs_template is None
     assert p.workspace == "."
 
+
+def test_parser_conf():
     p = parser(["--config", "path"])
     assert p.config == "path"
     p = parser(["-c", "path"])
@@ -21,6 +23,8 @@ def test_parser():
     except TypeError:
         assert 1
 
+
+def test_parser_make():
     p = parser(["--make"])
     assert p.make
     p = parser(["-m"])
@@ -36,6 +40,8 @@ def test_parser():
     except SystemExit:
         assert 1
 
+
+def test_parser_st_cmd_out():
     p = parser(["--st-cmd-out", "path"])
     assert p.st_cmd_out == "path"
     p = parser(["-O", "path"])
@@ -46,6 +52,8 @@ def test_parser():
     except TypeError:
         assert 1
 
+
+def test_parser_st_cmd_template():
     p = parser(["--st-cmd-template", "path"])
     assert p.st_cmd_template == "path"
     p = parser(["-T", "path"])
@@ -56,6 +64,8 @@ def test_parser():
     except TypeError:
         assert 1
 
+
+def test_parser_subs_out():
     p = parser(["--subs-out", "path"])
     assert p.subs_out == "path"
     p = parser(["-o", "path"])
@@ -66,6 +76,8 @@ def test_parser():
     except TypeError:
         assert 1
 
+
+def test_parser_subs_template():
     p = parser(["--subs-template", "path"])
     assert p.subs_template == "path"
     p = parser(["-t", "path"])
@@ -76,6 +88,8 @@ def test_parser():
     except TypeError:
         assert 1
 
+
+def test_parser_workspace():
     p = parser(["--workspace", "path"])
     assert p.workspace == "path"
     p = parser(["-w", "path"])
@@ -86,6 +100,8 @@ def test_parser():
     except TypeError:
         assert 1
 
+
+def test_parser_invalid_param():
     try:
         p = parser(["--not-existing-param"])
         assert 0

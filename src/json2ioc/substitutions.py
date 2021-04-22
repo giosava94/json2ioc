@@ -34,6 +34,19 @@ def find_lines_to_replace(inp_text, start=0):
     of the text block to replace.
     """
 
+    if type(inp_text) != str:
+        raise TypeError(
+            "'inp_text' must be str. Received type is '%s'" % type(inp_text)
+        )
+    if type(start) != int:
+        msg = "'start' must be an int greater or equal than 0. "
+        msg += "Received value is '%s'" % type(start)
+        raise TypeError(msg)
+    elif start < 0:
+        msg = "'start' must be an int greater or equal than 0. "
+        msg += "Received value is '%d'" % start
+        raise TypeError(msg)
+
     inp_lines = []
     end = start
     counter = 0
@@ -56,6 +69,13 @@ def replace_macros(inp_lines, item):
     For each line find the macro and replace it with the correct value.
     Return the updated lines.
     """
+
+    if type(inp_lines) != list:
+        raise TypeError(
+            "'inp_lines' expects a list. Found type is '%s'" % type(inp_lines)
+        )
+    if type(item) != dict:
+        raise TypeError("'item' expects a dict. Found type is '%s'" % type(item))
 
     new_lines = inp_lines[:]
     for k, v in item.items():
@@ -90,7 +110,8 @@ def generate_substitutions(inp_text, conf):
 
 def add_subs_to_makefile(lines, subs_list):
     """
-    Add to makefile new substitutions files
+    Add to makefile lines new substitutions files
+    Return the new lines to write.
     """
 
     new_lines = lines[:]

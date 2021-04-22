@@ -7,7 +7,7 @@ def get_st_cmd_relevant_indices(lines):
     """
 
     if not type(lines) is list:
-        raise TypeError("`lines` expects a list. Found type is '%s'" % type(lines))
+        raise TypeError("'lines' expects a list. Found type is '%s'" % type(lines))
 
     db_load_template_comment_line = 0
     env_paths_comment_line = 0
@@ -30,16 +30,18 @@ def generate_start_command(lines, indices, subs):
     """
 
     if not type(lines) is list:
-        raise TypeError("`lines` expects a list. Found type is '%s'" % type(lines))
+        raise TypeError("'lines' expects a list. Found type is '%s'" % type(lines))
     if not type(indices) is dict:
-        raise TypeError("`indices` expects a dict. Found type is '%s'" % type(indices))
+        raise TypeError("'indices' expects a dict. Found type is '%s'" % type(indices))
     if not type(subs) is str:
-        raise TypeError("`subs` expects a str. Found type is '%s'" % type(subs))
+        raise TypeError("'subs' expects a str. Found type is '%s'" % type(subs))
 
     epcl = indices.get("env_paths_comment_line", -1)
     dltcl = indices.get("db_load_template_comment_line", -1)
     out_lines = lines[:]
-    out_lines[epcl] = "< envPaths"
-    out_lines[dltcl + 1] = "#" + out_lines[dltcl + 1]
-    out_lines.insert(dltcl + 2, 'dbLoadTemplate("../../db/' + subs + '")\n')
+    if epcl >= 0:
+        out_lines[epcl] = "< envPaths"
+    if dltcl >= 0:
+        out_lines[dltcl + 1] = "#" + out_lines[dltcl + 1]
+        out_lines.insert(dltcl + 2, 'dbLoadTemplate("../../db/' + subs + '")\n')
     return out_lines
