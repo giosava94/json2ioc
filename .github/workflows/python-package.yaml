@@ -30,6 +30,12 @@ jobs:
     - name: Install project
       run: |
         pip install .
+    - name: Install and compile epics
+      run: |
+        git clone -b 7.0 --depth=1 --recursive https://github.com/epics-base/epics-base.git base-7.0
+        cd base-7.0
+        make
+        export PATH=$PATH:$(pwd)/base-7.0/bin/linux-x86_64
     - name: Test with pytest
       run: |
         pytest --cov=json2ioc --cov-report=xml
